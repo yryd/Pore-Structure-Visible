@@ -1,8 +1,8 @@
 # Pore-Structure-Visible
 
-# 「二·次·元」酱QQ机器人
-
 -.xsd---xsd_to_csv.pl---┐
+
+-.xyz---xyz_to_csv.py---├---->>filename.csv（坐标文件）
  基于 [go-cqhttp](https://github.com/Mrs4s/go-cqhttp)，使用[NoneBot](https://docs.nonebot.dev/guide/)框架 
 <p align="center">
   <a href="#">
