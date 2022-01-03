@@ -22,7 +22,7 @@ pip install -r requirements.txt
 
 ## 3 输入输出说明
 
-/get_csv
+### 3.0 标准化输入/get_csv
 
 .xsd---xsd_to_csv.pl-----┐
 
