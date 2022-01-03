@@ -48,7 +48,7 @@ filename_atom.csv（矩阵文件）---npcsv_to_fbx_cut.py--->>filename_atom.fbx�
 
 ### 3.4 模型draw_3D/
                                                                            
-filename.csv（坐标文件）---draw3D(python).py（plt绘图3d，复杂则卡顿）
+filename.csv（坐标文件）---draw3D(python).py（plt绘图3d，复杂则卡顿）*不建议使用
                                                                            
 filename_atom.csv（矩阵文件）---npcsv_to_fbx(blender).py--->>filename_atom.fbx（模型文件）
 
