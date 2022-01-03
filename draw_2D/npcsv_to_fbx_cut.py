@@ -2,6 +2,7 @@ import bpy
 import csv
 import numpy as np
 
+"""清理场景"""
 def clear_sean():
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.object.delete()
@@ -10,6 +11,7 @@ def clear_sean():
     for i in bpy.data.meshes:
         bpy.data.meshes.remove(i)
 
+"""读取csv矩阵"""
 def read_csv(file_name):
     file_path = file_name + '.csv'
     with open(file_path,encoding = 'utf-8') as f:
@@ -19,6 +21,7 @@ def read_csv(file_name):
         # data = data[:10,::]
     return data
 
+"""矩阵数据转换np数组"""
 def data_trans(data):
     data_num = data[...,3]
     num_max = np.amax(data_num)
@@ -30,24 +33,28 @@ def data_trans(data):
                 new_data[i][j][k] = data_num[k + len * j + len * len * i]
     return (int(num_max), len, new_data)
 
+"""添加材料"""
 def new_material(num,toumingdu):
     caizhi = bpy.data.materials.new(name=f'material_{num}')
+    """(0,1,1,1)代表RGB颜色(0/255,255/255,255/255,透明度)，透明度在后面设置"""
     caizhi.diffuse_color = (0, 1, 1, 1)
     caizhi.blend_method ='BLEND'
     caizhi.use_nodes = True
+    """漫反射颜色（主要颜色），上面设置失效(0,1,1,0)代表RGB颜色(0/255,255/255,255/255,透明度)，透明度在后面设置"""
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value[0] = 0
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value[1] = 1
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value[2] = 1
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value[3] = 0
-
+    """次表面反射（次要颜色），(0,1,1,0)代表RGB颜色(0/255,255/255,255/255,透明度)，透明度在后面设置"""
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Subsurface Color'].default_value[0] = 0
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Subsurface Color'].default_value[1] = 1
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Subsurface Color'].default_value[2] = 1
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Subsurface Color'].default_value[3] = 0
-
+    """透明度设置"""
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Alpha'].default_value = toumingdu
     return
 
+"""根据矩阵画立方体"""
 def blender_cube_draw(max_density, len, new_data, k):
     # Number of cubes.
     count = len
@@ -103,9 +110,11 @@ def blender_cube_draw(max_density, len, new_data, k):
                 current.data.materials.append(bpy.data.materials[f'material_{num}'])
     print('100.00%, Object creat finish')
 
+"""写入fbx文件"""
 def save_fbx(file_path_my):
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.export_scene.fbx(filepath=f'./{file_path_my}.fbx')
+    print(f'已写入为{file_path_my}.fbx数据')
 
 def main(file_path, layer):
     """读取CSV，CSV输入为name,x,y,z"""

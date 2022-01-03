@@ -3,7 +3,7 @@ import numpy as np
 import csv
 import csv_to_np
 
-
+# 读取坐标csv
 def read_csv(file_name):
     file_path = file_name + '.csv'
     with open(file_path,encoding = 'utf-8') as f:
@@ -13,6 +13,7 @@ def read_csv(file_name):
         # data = data[:10,::]
     return data
 
+# 坐标数据转矩阵
 def data_trans(data):
     data_num = data[...,3]
     num_max = int(np.amax(data_num))
@@ -24,6 +25,7 @@ def data_trans(data):
                 new_data[i][j][k] = data_num[k + len * j + len * len * i]
     return (int(num_max), len, new_data)
 
+# python画图
 def draw(max_density, len, new_data, ax1):
     length = 50 # 总长总宽
     size_start = length / len # 每个方块加空隙大小
@@ -37,14 +39,17 @@ def draw(max_density, len, new_data, ax1):
             if (num > 0):
                 touming = 0.1 + (0.9 / max_density) * num
                 touming = round(touming, 3)
+                """设置坐标、大小、颜色、透明度"""
                 new_rect = plt.Rectangle((x, y), size, size, color = 'cyan', alpha = touming)
                 ax1.add_patch(new_rect)
 
 def main(file_name):
     data = read_csv(file_name)
     (num_max, len, new_data) = data_trans(data)
+    """图纸大小100*120"""
     fig = plt.figure(figsize=(100,120))
     for i in range(len):
+        """图共6行5列"""
         ax = fig.add_subplot(6, 5, i + 1)
         draw(num_max, len, new_data[i],ax)
         plt.xlim(-25, 25)

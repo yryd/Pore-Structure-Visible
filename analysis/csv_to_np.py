@@ -50,7 +50,7 @@ def tj_3(data_rev,len,Rc):
     gridy = np.linspace(0, len_int, num_int)
     gridz = np.linspace(0, len_int, num_int)
     density, edges = np.histogramdd(data_rev, bins=[gridx, gridy,gridz])
-    print(gridz)
+    # print(gridz)
     density_bool = density.astype(bool)
     return (density, density_bool)
 
@@ -77,21 +77,23 @@ def draw(bool_distribute):
 
 def main(file_name,bead_name_list,cell_length,Rc,output):
     data = read_csv(file_name)
+    print(f'已读取{file_name}.csv')
     rev_data = data_processing(data,bead_name_list)
     (distribute, bool_distribute) = tj_3(rev_data,cell_length,Rc)
     # draw(bool_distribute)
     csv_write(distribute, bool_distribute, output)
+    print(f'已生成数组文件{output}.csv')
 
 if __name__ == '__main__':
     """源文件名"""
-    file_name = '10nm-20%NA_xyz'
+    file_name = '15nm-0_xyz'
     """晶格长度"""
-    cell_length = 100
+    cell_length = 150
     """最小精度"""
     Rc = 5
     """筛选珠子名显示"""
     """list1 = ['B','P','L'], list2 = ['sh']"""
-    bead_name_list = ['A2','SS','QS']
+    bead_name_list = ['B','P','L']
     """输出文件名"""
     select_name = '_'.join(bead_name_list)
     output = f'{file_name}_{Rc}_{select_name}'

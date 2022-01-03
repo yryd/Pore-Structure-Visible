@@ -1,0 +1,219 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import csv
+import os
+import sys
+sys.setrecursionlimit(1000000)
+
+class dfs_simple_digital_chacpt(object):
+    def __init__(self,arr):
+        self.white = True
+        self.row_num = arr.shape[0]
+        self.col_num = arr.shape[0]
+        self.walked_set = set()
+        self.roming_set = set()
+        self.dfs_num = 0
+        self.array = arr.astype(bool)
+        self.list = []
+        self.xy_list = []
+
+    def dfs(self, x, y, rgb):
+        '''
+        desc:用递归实现搜索范围内相同rgb值的像素
+        :param x:
+        :param y:
+        :param char:
+        :return:
+        '''
+        self.roming_set.add(tuple([x, y]))
+        # if 0 > x or 0 > y or x >= self.row_num or y >= self.col_num: # 越界检查
+        #     return
+        if tuple([x,y]) in self.walked_set: # 重复遍历检查
+            return
+        if rgb != self.array[x][y]: # 目标rgb值检查
+            return
+
+        self.walked_set.add(tuple([x, y]))
+        if (x == self.col_num - 1):
+            self.dfs(0, y, rgb)# x
+        else:
+            self.dfs(x + 1, y, rgb)# x
+        if (y == self.row_num - 1):
+            self.dfs(x, 0, rgb)  # y
+        else:
+            self.dfs(x, y + 1, rgb)  # y
+        if (x == - self.col_num):
+            self.dfs(self.col_num - 1, y, rgb)  # -x
+        else:
+            self.dfs(x - 1, y, rgb)  # -x
+        if (y == -self.row_num):
+            self.dfs(x, self.row_num - 1, rgb)  # -y
+        else:
+            self.dfs(x, y - 1, rgb)  # -y
+        # self.dfs(x + 1, y + 1, rgb)  # Ⅰ
+        # self.dfs(x + 1, y - 1, rgb)  # Ⅱ
+        # self.dfs(x - 1, y - 1, rgb)  # Ⅲ
+        # self.dfs(x - 1, y + 1, rgb)  # Ⅳ
+        return
+
+    def walk(self):
+        '''
+        desc:
+        :return:
+        '''
+        for y in range(self.col_num):
+            for x in range(self.row_num):
+                rgb = self.array[x][y]
+                if tuple([x, y]) in self.roming_set:
+                    continue
+                if rgb != self.white:
+                    self.dfs(x, y, rgb)
+                    num = len(self.walked_set)
+                    self.list.append(num)
+                    self.xy_list.append([x,y])
+                    self.walked_set.clear()
+        self.roming_set.clear()
+        return (self.list,self.xy_list)
+
+# 输入CSV文件，得到矩阵data，散点云图
+def read_csv(file_name):
+    file_path = file_name + '.csv'
+    with open(file_path,encoding = 'utf-8') as f:
+        """读取文件，支持str，跳过首行，读取索引为1，2，3的列"""
+        data = np.loadtxt(f,str,delimiter = ",", skiprows = 1, usecols = (0,1,2,3))
+        """**************可能有空行注意,本例取前十行所有列***********"""
+        # data = data[:10,::]
+        return data
+
+# 处理CSV数据
+def data_processing(data,name_list):
+    index = data[...,0]
+    content = data[...,1:]
+    all_list = []
+    for name in name_list:
+        row = np.where(index == name)
+        all_list = all_list + row[0].tolist()
+    use_line = np.array(all_list)
+    content = content[use_line,...]
+    """注意以字符串读取进来的要转换回数据"""
+    rev_data = content.astype(np.float64)
+    return rev_data
+
+# 统计三维频率直方图
+def tj_3(data_rev,len,Rc):
+    len_int = int(len)
+    num_int = int(len/Rc) + 1
+    gridx = np.linspace(0, len_int, num_int)
+    gridy = np.linspace(0, len_int, num_int)
+    gridz = np.linspace(0, len_int, num_int)
+    density, edges = np.histogramdd(data_rev, bins=[gridx, gridy,gridz])
+    # print(gridz)
+    density_bool = density.astype(bool)
+    return (density, density_bool)
+
+def get_data(file_name,bead_name_list,cell_length,Rc):
+    data = read_csv(file_name)
+    rev_data = data_processing(data,bead_name_list)
+    (distribute, bool_distribute) = tj_3(rev_data,cell_length,Rc)
+    data_int = distribute.astype(int)
+    length = data_int.shape[0]
+    return (length, data_int)
+
+def plant_analysis(xy_data):
+    index_list = np.nonzero(xy_data)
+    none_zero = index_list[0].size
+    len = xy_data.shape[0]
+    zero = len * len - none_zero
+    # print(f'X方向第{i+1}层空点格{zero}个')
+    zero_in_vol = zero / (len * len)
+    # print(f'X方向第{i+1}层空格率{zero_in_vol}个')
+    # print(f'X方向第{i+1}层非零点格{none_zero}个')
+    max = np.max(xy_data)
+    # print(f'X方向第{i+1}最大密度为{max}')
+    var2 =  np.var(xy_data)
+    # print(f'X方向第{i+1}层含零方差为{var2}')
+    one_line = []
+    for deny in range(len):
+        for denx in range(len):
+            if xy_data[denx][deny] != 0:
+                one_line.append(xy_data[denx][deny])
+    var3 =  np.var(np.asarray(one_line))
+    # print(f'X方向第{i+1}层不含零方差为{var3}')
+    return (zero_in_vol,var3)
+
+"""孔径计算"""
+def kjjs(data):
+    pore_size_obj = dfs_simple_digital_chacpt(data)
+    (list,xy_list) = pore_size_obj.walk()
+    myset = set(list)
+    size_all = 0
+    count = 0
+    for item in myset:
+        # print("the %d has found %d" %(item,list.count(item)))
+        size_all += item * list.count(item)
+        count += list.count(item)
+    avarage = size_all / count
+    return avarage
+
+def write_txt(output, str):
+    with open(f'{output}.txt',"w",encoding='UTF-8') as file:
+        file.write(str)
+    print(f'已输出结果...->>{output}.txt')
+
+
+def main(file_name,bead_name_list,cell_length,Rc,output):
+    data = read_csv(file_name)
+    (length, new_data) = get_data(file_name,bead_name_list,cell_length,Rc)
+    # print(f'切面点格总数{length*length}')
+    avarage_x_gol = 0
+    avarage_y_gol = 0
+    avarage_z_gol = 0
+    zero_in_vol = 0
+    var3_gol = 0
+    # print(new_data[0,::,::])
+    # print(new_data[::,0,::])
+    for i in range(length):
+        yz_data = new_data[i,::,::]
+        (zero_in_vol_x,var3_x) = plant_analysis(yz_data)
+        avarage_x = kjjs(yz_data)
+        avarage_x_gol += avarage_x
+        xz_data = new_data[::,i,::]
+        (zero_in_vol_y,var3_y) = plant_analysis(xz_data)
+        avarage_y = kjjs(xz_data)
+        avarage_y_gol += avarage_y
+        xy_data = new_data[::,::,i]
+        (zero_in_vol_z,var3_z) = plant_analysis(xy_data)
+        avarage_z = kjjs(xy_data)
+        avarage_z_gol += avarage_z
+        zero_in_vol += (zero_in_vol_x + zero_in_vol_y + zero_in_vol_z) / 3
+        var3_gol += (var3_x + var3_y + var3_z) / 3
+    avarage_all = (avarage_x_gol + avarage_y_gol + avarage_z_gol) / (3 * length)
+    avarage_all_x = avarage_x_gol / length
+    avarage_all_y = avarage_y_gol / length
+    avarage_all_z = avarage_z_gol / length
+    zero_in_vol_ava = zero_in_vol / length
+    var3_gol_ava = var3_gol / length
+    # print(f'体平均孔径{avarage_all}')
+    # print(f'X方向平均孔径{avarage_all_x}')
+    # print(f'Y方向平均孔径{avarage_all_y}')
+    # print(f'Z方向平均孔径{avarage_all_z}')
+    # print(f'体平均孔隙率{zero_in_vol_ava}')
+    # print(f'体平均密度方差{var3_gol_ava}')
+    str = f'体平均孔径{avarage_all:.3f}Rc\nX方向平均孔径{avarage_all_x:.3f}Rc\nY方向平均孔径{avarage_all_y:.3f}Rc\nZ方向平均孔径{avarage_all_z:.3f}Rc\n体平均孔隙率{zero_in_vol_ava:.3f}'
+    print(str)
+    write_txt(output, str)
+
+if __name__ == '__main__':
+    """源文件名"""
+    file_name = '15nm-0_xyz'
+    """晶格长度"""
+    cell_length = 100
+    """最小精度"""
+    Rc = 5
+    """筛选珠子名显示"""
+    """list1 = ['B','P','L','A2','SS','QS'], list2 = ['sh']"""
+    bead_name_list = ['B','P','L']
+    """输出文件名"""
+    select_name = '_'.join(bead_name_list)
+    output = f'{file_name[:-4]}_{Rc}_{select_name}'
+    main(file_name,bead_name_list,cell_length,Rc,output)

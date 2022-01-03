@@ -32,19 +32,21 @@ def data_trans(data):
 
 def new_material(num,toumingdu):
     caizhi = bpy.data.materials.new(name=f'material_{num}')
+    """(0,1,1,1)代表RGB颜色(0/255,255/255,255/255,透明度)，透明度在后面设置"""
     caizhi.diffuse_color = (0, 1, 1, 1)
     caizhi.blend_method ='BLEND'
     caizhi.use_nodes = True
+    """漫反射颜色（主要颜色），上面设置失效(0,1,1,0)代表RGB颜色(0/255,255/255,255/255,透明度)，透明度在后面设置"""
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value[0] = 0
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value[1] = 1
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value[2] = 1
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value[3] = 0
-
+    """次表面反射（次要颜色），(0,1,1,0)代表RGB颜色(0/255,255/255,255/255,透明度)，透明度在后面设置"""
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Subsurface Color'].default_value[0] = 0
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Subsurface Color'].default_value[1] = 1
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Subsurface Color'].default_value[2] = 1
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Subsurface Color'].default_value[3] = 0
-
+    """透明度设置"""
     caizhi.node_tree.nodes['Principled BSDF'].inputs['Alpha'].default_value = 1
     return
 

@@ -199,7 +199,7 @@ def main(file_name,bead_name_list,cell_length,Rc,output):
     # print(f'Z方向平均孔径{avarage_all_z}')
     # print(f'体平均孔隙率{zero_in_vol_ava}')
     # print(f'体平均密度方差{var3_gol_ava}')
-    str = f'体平均孔径{avarage_all:.3f}\nX方向平均孔径{avarage_all_x:.3f}\nY方向平均孔径{avarage_all_y:.3f}\nZ方向平均孔径{avarage_all_z:.3f}\n体平均孔隙率{zero_in_vol_ava:.3f}\n体平均密度方差{var3_gol_ava:.3f}'
+    str = f'体平均孔径{avarage_all:.3f}Rc\nX方向平均孔径{avarage_all_x:.3f}Rc\nY方向平均孔径{avarage_all_y:.3f}Rc\nZ方向平均孔径{avarage_all_z:.3f}Rc\n体平均孔隙率{zero_in_vol_ava:.3f}'
     print(str)
     write_txt(output, str)
 
@@ -224,7 +224,7 @@ if __name__ == '__main__':
         Rc = 5
         """筛选珠子名显示"""
         """list1 = ['B','P','L','A2','SS','QS'], list2 = ['sh']"""
-        bead_name_list = ['A2','SS','QS']
+        bead_name_list = ['B','P','L']
         """输出文件名"""
         select_name = '_'.join(bead_name_list)
         output = f'{file_name[:-4]}_{Rc}_{select_name}'
