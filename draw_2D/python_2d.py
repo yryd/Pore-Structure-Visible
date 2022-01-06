@@ -43,25 +43,69 @@ def draw(max_density, len, new_data, ax1):
                 new_rect = plt.Rectangle((x, y), size, size, color = 'cyan', alpha = touming)
                 ax1.add_patch(new_rect)
 
-def main(file_name):
-    data = read_csv(file_name)
-    (num_max, len, new_data) = data_trans(data)
+def draw_in_svg_x(file_name, num_max, len, new_data):
     """图纸大小100*120"""
     fig = plt.figure(figsize=(100,120))
+    print('正在X方向画图...')
     for i in range(len):
         """图共6行5列"""
         ax = fig.add_subplot(6, 5, i + 1)
-        draw(num_max, len, new_data[i],ax)
+        draw(num_max, len, new_data[i,::,::],ax)
         plt.xlim(-25, 25)
         plt.ylim(-25, 25)
         plt.xticks([])
         plt.yticks([])
-    plt.savefig(f'{file_name}_cut.svg',dpi=300)
-    # plt.show()
+    print('请稍后，正在写入.svg文件')
+    """写入SVG文件，写入PNG文件需修改此行"""
+    plt.savefig(f'{file_name}_cut_x.svg',dpi = 300)
+    print(f'写入{file_name}_cut_x.svg文件完毕！查看根目录同名文件')
+
+def draw_in_svg_y(file_name, num_max, len, new_data):
+    """图纸大小100*120"""
+    fig = plt.figure(figsize=(100,120))
+    print('正在Y方向画图...')
+    for i in range(len):
+        """图共6行5列"""
+        ax = fig.add_subplot(6, 5, i + 1)
+        draw(num_max, len, new_data[::,i,::],ax)
+        plt.xlim(-25, 25)
+        plt.ylim(-25, 25)
+        plt.xticks([])
+        plt.yticks([])
+    print('请稍后，正在写入.svg文件')
+    """写入SVG文件，写入PNG文件需修改此行"""
+    plt.savefig(f'{file_name}_cut_y.svg',dpi = 300)
+    print(f'写入{file_name}_cut_y.svg文件完毕！查看根目录同名文件')
+
+def draw_in_svg_z(file_name, num_max, len, new_data):
+    """图纸大小100*120"""
+    fig = plt.figure(figsize=(100,120))
+    print('正在Z方向画图...')
+    for i in range(len):
+        """图共6行5列"""
+        ax = fig.add_subplot(6, 5, i + 1)
+        draw(num_max, len, new_data[::,::,i],ax)
+        plt.xlim(-25, 25)
+        plt.ylim(-25, 25)
+        plt.xticks([])
+        plt.yticks([])
+    print('请稍后，正在写入.svg文件')
+    """写入SVG文件，写入PNG文件需修改此行"""
+    plt.savefig(f'{file_name}_cut_z.svg',dpi = 300)
+    print(f'写入{file_name}_cut_z.svg文件完毕！查看根目录同名文件')
+
+
+def main(file_name):
+    data = read_csv(file_name)
+    (num_max, len, new_data) = data_trans(data)
+    draw_in_svg_x(file_name, num_max, len, new_data)
+    draw_in_svg_y(file_name, num_max, len, new_data)
+    draw_in_svg_z(file_name, num_max, len, new_data)
+    print('运行完毕可通过浏览器进行查看.svg文件...')
 
 def main_only():
     """源文件名"""
-    file_name = '15nm-0_xyz'
+    file_name = '15nm-7ane_xyz'
     """晶格长度"""
     cell_length = 150
     """最小精度"""
@@ -75,6 +119,4 @@ def main_only():
     csv_to_np.main(file_name,bead_name_list,cell_length,Rc,output)
     main(output)
 if __name__ == "__main__":
-    # file_name = '10nm-0_1.3_4_B_P_L'
-    # main(file_name)
     main_only()
